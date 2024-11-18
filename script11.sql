@@ -333,13 +333,23 @@ $$
 CALL sp_total_pedido_cliente(1);
 -- ** 
 
+-- 1.3 Reescreva o exercício 1.2 de modo que o total de pedidos
+-- seja armazenado em uma variável de saída (OUT).
+CREATE OR REPLACE PROCEDURE  sp_total_pedido_cliente_out(IN c_cliente INT,OUT var_total_out INT)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+ -- total de pedidos de um cliente	
+ SELECT COUNT(*) INTO var_total_out
+ FROM tb_pedido WHERE cod_cliente = c_cliente;
+END;
+$$
 
-
-
-
-
-
-
-
-
-
+DO $$
+DECLARE 
+ total_out INT;
+BEGIN
+   CALL sp_total_pedido_cliente_out(1,total_out);
+   RAISE NOTICE 'qtde de pedidos de um cliente é (var out) % é ',total_out;
+END;
+$$
