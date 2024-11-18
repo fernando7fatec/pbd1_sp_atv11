@@ -411,3 +411,26 @@ END;
 $$
 
 SELECT * FROM tb_cliente;
+
+-- 1.6 Para cada procedimento criado, escreva um bloco anônimo que o coloca em execução.
+DO 
+$$
+DECLARE
+  c_cliente_in_total_p_out INT := 1;
+  total_out INT;
+BEGIN
+  -- 1.5
+  CALL sp_total_pedido_cliente_variadic('Pedro','Ana','Joao');
+  CALL sp_total_pedido_cliente_out(1,c_cliente_in_total_p_out);
+  CALL sp_total_pedido_cliente_out(1,total_out);
+  CALL sp_total_pedido_cliente(1);
+END;
+$$
+  
+
+
+
+
+
+
+
