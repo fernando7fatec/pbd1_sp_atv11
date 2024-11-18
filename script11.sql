@@ -270,13 +270,14 @@ AS $$
 DECLARE
 	valor_total INT;
 BEGIN
---vamos verificar se o valor_a_pagar é suficiente
+    --vamos verificar se o valor_a_pagar é suficiente
 	CALL sp_calcular_valor_de_um_pedido (cod_pedido, valor_total); 
 	IF valor_a_pagar < valor_total THEN
 		RAISE 'R$% insuficiente para pagar a conta de R$%', valor_a_pagar, valor_total;
 	UPDATE tb_pedido p SET
 	data_modificacao = CURRENT_TIMESTAMP, status = 'fechado'
 	WHERE p.cod_pedido = $2;
+	
 	-- log
 	INSERT INTO tb_log(data_operacao,nome_procedimento) VALUES(CURRENT_TIMESTAMP,'fechamento pedido');
 
@@ -308,12 +309,33 @@ CREATE TABLE IF NOT EXISTS tb_log(
 	nome_procedimento VARCHAR(500)
 );
 
-INSERT INTO tb_log(data_operacao,nome_procedimento) VALUES(CURRENT_TIMESTAMP,'chapa quente');
+-- Executar o INSERT em cada SP logando 
+-- a atividade e registrando a hora.
+-- INSERT INTO tb_log(data_operacao,nome_procedimento) VALUES(CURRENT_TIMESTAMP,'fechamento pedido');
 SELECT * FROM tb_log;
 
+-- 1.2 Adicione um procedimento ao sistema do restaurante. Ele deve
+-- - receber um parâmetro de entrada (IN) que representa o código de um cliente
+-- - exibir, com RAISE NOTICE, o total de pedidos que o cliente tem
 
-
-
+CREATE OR REPLACE PROCEDURE  sp_total_pedido_cliente(IN c_cliente INT)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+ v_total INT := 0;
+BEGIN
+ 	SELECT SUM(valor) FROM 
+		tb_pedido p INTO v_total
+	INNER JOIN tb_item_pedido ip ON 
+		p.cod_pedido = ip.cod_pedido 
+	INNER JOIN tb_item i ON 
+		i.cod_item = ip.cod_item
+	WHERE p.cod_cliente = c_cliente; 
+	
+	RAISE NOTICE 'Valor total do pedido: %',v_total;
+END;
+$$
+CALL sp_total_pedido_cliente(1);
 
 
 
