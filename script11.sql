@@ -324,18 +324,14 @@ AS $$
 DECLARE
  v_total INT := 0;
 BEGIN
- 	SELECT SUM(valor) FROM 
-		tb_pedido p INTO v_total
-	INNER JOIN tb_item_pedido ip ON 
-		p.cod_pedido = ip.cod_pedido 
-	INNER JOIN tb_item i ON 
-		i.cod_item = ip.cod_item
-	WHERE p.cod_cliente = c_cliente; 
-	
-	RAISE NOTICE 'Valor total do pedido: %',v_total;
+ -- total de pedidos de um cliente	
+ SELECT COUNT(*) INTO v_total 
+ FROM tb_pedido WHERE cod_cliente = c_cliente;
+ RAISE NOTICE 'Qtde de pedidos do Cliente %, é %',c_cliente,v_total;
 END;
 $$
 CALL sp_total_pedido_cliente(1);
+-- ** 
 
 
 
